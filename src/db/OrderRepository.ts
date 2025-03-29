@@ -17,8 +17,7 @@ export class OrderRepository implements IOrderRepository {
         data: validatedOrder,
       });
     } catch (error) {
-      console.error("Error saving order:", error);
-      throw new Error("Failed to save order");
+      throw new Error(`Failed to save order: ${error instanceof Error ? error.message : error}`);
     }
   }
 
@@ -45,8 +44,7 @@ export class OrderRepository implements IOrderRepository {
 
       return validatedOrders;
     } catch (error) {
-      console.error("Error fetching orders by customer:", error);
-      throw new Error("Failed to fetch orders");
+      throw new Error(`Failed to fetch orders: ${error instanceof Error ? error.message : error}`);
     }
   }
 }
