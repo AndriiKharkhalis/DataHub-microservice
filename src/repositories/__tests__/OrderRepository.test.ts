@@ -24,8 +24,19 @@ describe("OrderRepository", () => {
         email: "custumer@gmail.com",
         totalItems: 2,
         totalAmount: 100,
-        createdAt: new Date(),
+        createdAt: new Date("2025-03-26T10:30:00Z"),
       };
+
+      const transformedOrder = {
+        ...inputOrder,
+        totalAmount: new Decimal(inputOrder.totalAmount),
+        createdAt: new Date(inputOrder.createdAt),
+      };
+
+      prisma.order.create.mockResolvedValue({
+        id: "00000000-0000-0000-0000-000000000001",
+        ...transformedOrder,
+      });
 
       await orderRepository.saveOrder(inputOrder);
 
@@ -41,7 +52,7 @@ describe("OrderRepository", () => {
         email: "invalid-email",
         totalItems: 2,
         totalAmount: 100,
-        createdAt: new Date(),
+        createdAt: new Date("2025-01-01T23:00:00.000Z"),
       };
 
       await expect(orderRepository.saveOrder(inputOrder)).rejects.toThrow("Failed to save order");
@@ -59,7 +70,7 @@ describe("OrderRepository", () => {
           email: "custumer@gmail.com",
           totalItems: 2,
           totalAmount: new Decimal(100),
-          createdAt: new Date("2025-01-01 00:00:00"),
+          createdAt: new Date("2025-01-01T23:00:00.000Z"),
         },
         {
           id: "00000000-0000-0000-0000-000000000002",
@@ -68,7 +79,7 @@ describe("OrderRepository", () => {
           email: "custumer@gmail.com",
           totalItems: 3,
           totalAmount: new Decimal(200),
-          createdAt: new Date("2025-01-02 00:00:00"),
+          createdAt: new Date("2025-01-02T23:00:00.000Z"),
         },
       ];
 
@@ -90,7 +101,7 @@ describe("OrderRepository", () => {
           email: "custumer@gmail.com",
           totalItems: 2,
           totalAmount: 100,
-          createdAt: new Date("2025-01-01 00:00:00"),
+          createdAt: "2025-01-01T23:00:00.000Z",
         },
         {
           id: "00000000-0000-0000-0000-000000000002",
@@ -99,7 +110,7 @@ describe("OrderRepository", () => {
           email: "custumer@gmail.com",
           totalItems: 3,
           totalAmount: 200,
-          createdAt: new Date("2025-01-02 00:00:00"),
+          createdAt: "2025-01-02T23:00:00.000Z",
         },
       ]);
     });
