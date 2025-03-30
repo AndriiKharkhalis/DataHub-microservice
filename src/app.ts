@@ -1,13 +1,8 @@
-import express, { Request, Response } from "express";
-import dotenv from "dotenv";
-
-dotenv.config();
+import express from "express";
+import orderRoutes from "./routes/OrderRoutes";
 
 const app = express();
 app.use(express.json());
-
-app.get("/health", (_req: Request, res: Response) => {
-  res.send("Server is running");
-});
+app.use("/api", orderRoutes);
 
 export default app;
