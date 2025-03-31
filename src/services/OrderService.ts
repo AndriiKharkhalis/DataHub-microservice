@@ -1,5 +1,4 @@
-import { IOrderService } from "./IOrderService";
-import { IOrderRepository } from "../repositories/IOrderRepository";
+import { IOrderRepository, IOrderService } from "../domain";
 import { OrderBody, Order } from "../types/order";
 
 export type OrderServiceDependencies = {

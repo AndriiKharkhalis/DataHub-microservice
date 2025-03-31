@@ -1,6 +1,6 @@
 import { PrismaClient } from "@prisma/client";
 import { Order, OrderBody, OrderBodySchema, OrderSchema } from "../types/order";
-import { IOrderRepository } from "./IOrderRepository";
+import { IOrderRepository } from "../domain";
 
 export type OrderRepositoryDependencies = {
   prisma: PrismaClient;

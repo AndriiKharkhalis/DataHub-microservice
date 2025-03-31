@@ -1,6 +1,5 @@
 import { Request, Response } from "express";
-import { IOrderController } from "./IOrderController";
-import { IOrderService } from "../services/IOrderService";
+import { IOrderController, IOrderService } from "../domain";
 import { OrderBodySchema } from "../types/order";
 
 export type OrderControllerDependencies = {

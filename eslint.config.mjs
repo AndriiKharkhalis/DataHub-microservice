@@ -33,6 +33,10 @@ export default [
           trailingComma: "all",
         },
       ],
+      "@typescript-eslint/no-unused-vars": [
+        "error",
+        { argsIgnorePattern: "^_" },
+      ],
     },
   },
 ];
