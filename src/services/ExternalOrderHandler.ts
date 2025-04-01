@@ -1,12 +1,19 @@
 import { Channel, ConsumeMessage } from "amqplib";
 import Big from "big.js";
 import { ExternalOrder, OrderBody } from "../types";
-import { IExternalOrderHandler, IFailedOrderRepository, IOrderRepository } from "../domain";
+import {
+  IExternalOrderHandler,
+  HandleOrderRequest,
+  IFailedOrderRepository,
+  ILogger,
+  IOrderRepository,
+} from "../domain";
 
 export type ExternalOrderHandlerDependencies = {
   orderRepository: IOrderRepository;
   failedOrderRepository: IFailedOrderRepository;
   rabbitMQChannel: Channel;
+  logger: ILogger;
 };
 
 export type ExternalOrderHandlerParams = {
@@ -19,15 +26,17 @@ export class ExternalOrderHandler implements IExternalOrderHandler {
     private readonly params: ExternalOrderHandlerParams,
   ) {}
 
-  async handleOrder(order: ExternalOrder): Promise<void> {
+  async handleOrder(req: HandleOrderRequest): Promise<void> {
     try {
+      const { order } = req;
+
       const serializedOrder = JSON.stringify(order);
 
       this.$.rabbitMQChannel.sendToQueue(this.params.queueName, Buffer.from(serializedOrder), {
         persistent: true,
       });
     } catch (error) {
-      console.error("Error pushing order to RabbitMQ queue:", error);
+      this.$.logger.error("Error pushing order to RabbitMQ queue:", error);
     }
   }
 
@@ -47,7 +56,7 @@ export class ExternalOrderHandler implements IExternalOrderHandler {
 
             this.$.rabbitMQChannel.ack(msg);
           } catch (error) {
-            console.error("Error processing order:", error);
+            this.$.logger.error("Error processing order:", error);
 
             const errorMessage = error instanceof Error ? error.message : "Unknown error";
 

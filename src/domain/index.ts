@@ -3,3 +3,4 @@ export * from "./IOrderService";
 export * from "./IExternalOrderHandler";
 export * from "./IOrderController";
 export * from "./IFailedOrderRepository";
+export * from "./ILogger";

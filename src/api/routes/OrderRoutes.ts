@@ -1,10 +1,9 @@
 import express from "express";
-import { OrderController } from "../../controllers/OrderController";
-import { ExternalOrderHandler } from "../../services/ExternalOrderHandler";
+import { IExternalOrderHandler, IOrderController } from "../../domain";
 
 const createOrderRoutes = (
-  orderController: OrderController,
-  externalOrderHandler: ExternalOrderHandler,
+  orderController: IOrderController,
+  externalOrderHandler: IExternalOrderHandler,
 ) => {
   const router = express.Router();
 

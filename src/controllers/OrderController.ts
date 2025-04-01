@@ -21,7 +21,9 @@ export class OrderController implements IOrderController {
 
       res.json(orders);
     } catch (error) {
-      res.status(500).json({ message: error instanceof Error ? error.message : "Internal Server Error" });
+      res
+        .status(500)
+        .json({ message: error instanceof Error ? error.message : "Internal Server Error" });
     }
   }
 }
