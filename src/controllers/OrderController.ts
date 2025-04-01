@@ -1,7 +1,5 @@
 import { Request, Response } from "express";
-import { IOrderController } from "./IOrderController";
-import { IOrderService } from "../services/IOrderService";
-import { OrderBodySchema } from "../types/order";
+import { IOrderController, IOrderService } from "../domain";
 
 export type OrderControllerDependencies = {
   orderService: IOrderService;
@@ -9,18 +7,6 @@ export type OrderControllerDependencies = {
 
 export class OrderController implements IOrderController {
   constructor(private readonly $: OrderControllerDependencies) {}
-
-  async createOrder(req: Request, res: Response): Promise<void> {
-    try {
-      const order = OrderBodySchema.parse(req.body);
-
-      await this.$.orderService.createOrder(order);
-
-      res.status(201).json({ message: "Order created successfully" });
-    } catch (error) {
-      res.status(400).json({ message: error instanceof Error ? error.message : "Invalid order data" });
-    }
-  }
 
   async getOrders(req: Request, res: Response): Promise<void> {
     try {
@@ -31,7 +17,7 @@ export class OrderController implements IOrderController {
         return;
       }
 
-      const orders = await this.$.orderService.getOrdersByCustomer(customerId);
+      const orders = await this.$.orderService.queryOrders({ customerId });
 
       res.json(orders);
     } catch (error) {
