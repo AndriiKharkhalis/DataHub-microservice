@@ -1,10 +1,11 @@
 import { Channel, ConsumeMessage } from "amqplib";
-import { ExternalOrder } from "../types/externalOrder";
-import { OrderBody } from "../types/order";
-import { IExternalOrderHandler, IOrderRepository } from "../domain";
+import Big from "big.js";
+import { ExternalOrder, OrderBody } from "../types";
+import { IExternalOrderHandler, IFailedOrderRepository, IOrderRepository } from "../domain";
 
 export type ExternalOrderHandlerDependencies = {
   orderRepository: IOrderRepository;
+  failedOrderRepository: IFailedOrderRepository;
   rabbitMQChannel: Channel;
 };
 
@@ -42,12 +43,20 @@ export class ExternalOrderHandler implements IExternalOrderHandler {
 
             const transformedOrder = this.transformOrder(parsedOrder);
 
-            await this.$.orderRepository.saveOrder(transformedOrder);
+            await this.$.orderRepository.create(transformedOrder);
 
             this.$.rabbitMQChannel.ack(msg);
           } catch (error) {
             console.error("Error processing order:", error);
-            this.$.rabbitMQChannel.nack(msg, false, true);
+
+            const errorMessage = error instanceof Error ? error.message : "Unknown error";
+
+            await this.$.failedOrderRepository.create({
+              rawData: msg.content.toString(),
+              errorMessage,
+            });
+
+            this.$.rabbitMQChannel.ack(msg);
           }
         }
       },
@@ -62,8 +71,10 @@ export class ExternalOrderHandler implements IExternalOrderHandler {
       orderId: orderId,
       customerId: customer.id,
       email: customer.email,
-      totalItems: items.reduce((sum, item) => sum + item.quantity, 0),
-      totalAmount: items.reduce((sum, item) => sum + item.quantity * item.price, 0),
+      totalItems: items.reduce((sum, item) => sum.plus(item.quantity), new Big(0)).toNumber(),
+      totalAmount: items
+        .reduce((sum, item) => sum.plus(new Big(item.quantity).times(item.price)), new Big(0))
+        .toNumber(),
       createdAt: new Date(createdAt),
     };
   }

@@ -18,3 +18,12 @@ model Order {
 
   @@map("core_order")
 }
+
+model FailedOrder {
+  id         String  @id @default(uuid())
+  rawData   String
+  errorMessage String
+  createdAt  DateTime @default(now())
+
+  @@map("core_invalid_order")
+}
