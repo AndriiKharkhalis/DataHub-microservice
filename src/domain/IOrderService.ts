@@ -1,13 +1,13 @@
 import { Order } from "../types/order";
 
-export type QueryOrderRequest = {
+export type QueryOrdersRequest = {
   customerId: string;
 };
 
-export type QueryOrderResponse = {
+export type QueryOrdersResponse = {
   orders: Order[];
 };
 
 export interface IOrderService {
-  queryOrders(req: QueryOrderRequest): Promise<QueryOrderResponse>;
+  queryOrders(req: QueryOrdersRequest): Promise<QueryOrdersResponse>;
 }

@@ -1,53 +1,21 @@
-import { PrismaClient } from "@prisma/client";
-import createOrderRoutes from "./api/routes/OrderRoutes";
-import app from "./app";
+import { createAppDependencies } from "./builder";
 import { env } from "./config/env";
-import { createRabbitMQChannel } from "./config/rabbitmq";
-import { OrderController } from "./controllers/OrderController";
-import { IFailedOrderRepository, ILogger, IOrderRepository } from "./domain";
-import { FailedOrderRepository, OrderRepository } from "./repositories";
-import { ExternalOrderHandler } from "./services/ExternalOrderHandler";
-import { OrderService } from "./services/OrderService";
-import { Logger } from "./utils/Logger";
-
-async function initializeRabbitMQ(
-  orderRepository: IOrderRepository,
-  failedOrderRepository: IFailedOrderRepository,
-  logger: ILogger,
-): Promise<ExternalOrderHandler> {
-  const channel = await createRabbitMQChannel(env.RABBITMQ_URL, env.RABBITMQ_QUEUE_NAME);
-
-  const externalOrderHandler = new ExternalOrderHandler(
-    {
-      orderRepository,
-      failedOrderRepository,
-      rabbitMQChannel: channel,
-      logger,
-    },
-    { queueName: env.RABBITMQ_QUEUE_NAME },
-  );
-
-  return externalOrderHandler;
-}
+import { createApp } from "./app";
+import createOrderRoutes from "./api/routes/OrderRoutes";
 
 async function startServer() {
-  const logger = new Logger();
+  const appDependencies = await createAppDependencies({
+    rabbitMQUrl: env.RABBITMQ_URL,
+    rabbitMQQueueName: env.RABBITMQ_QUEUE_NAME,
+  });
+
+  const { logger, orderController, externalOrderHandler } = appDependencies;
+
+  const app = createApp(logger);
 
   try {
-    const prisma = new PrismaClient();
-    const orderRepository = new OrderRepository({ prisma });
-    const failedOrderRepository = new FailedOrderRepository({ prisma });
-    const orderService = new OrderService({ orderRepository });
-
-    const externalOrderHandler = await initializeRabbitMQ(
-      orderRepository,
-      failedOrderRepository,
-      logger,
-    );
-
     await externalOrderHandler.consumeEvent();
 
-    const orderController = new OrderController({ orderService });
     const orderRoutes = createOrderRoutes(orderController, externalOrderHandler);
 
     app.use("/api", orderRoutes);

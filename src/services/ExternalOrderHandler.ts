@@ -1,7 +1,13 @@
 import { Channel, ConsumeMessage } from "amqplib";
 import Big from "big.js";
 import { ExternalOrder, OrderBody } from "../types";
-import { IExternalOrderHandler, IFailedOrderRepository, ILogger, IOrderRepository } from "../domain";
+import {
+  IExternalOrderHandler,
+  HandleOrderRequest,
+  IFailedOrderRepository,
+  ILogger,
+  IOrderRepository,
+} from "../domain";
 
 export type ExternalOrderHandlerDependencies = {
   orderRepository: IOrderRepository;
@@ -20,8 +26,10 @@ export class ExternalOrderHandler implements IExternalOrderHandler {
     private readonly params: ExternalOrderHandlerParams,
   ) {}
 
-  async handleOrder(order: ExternalOrder): Promise<void> {
+  async handleOrder(req: HandleOrderRequest): Promise<void> {
     try {
+      const { order } = req;
+
       const serializedOrder = JSON.stringify(order);
 
       this.$.rabbitMQChannel.sendToQueue(this.params.queueName, Buffer.from(serializedOrder), {

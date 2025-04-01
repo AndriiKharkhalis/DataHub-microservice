@@ -1,6 +1,10 @@
-import { ExternalOrder } from "../types/externalOrder";
+import { ExternalOrder } from "../types";
+
+export type HandleOrderRequest = {
+  order: ExternalOrder;
+};
 
 export interface IExternalOrderHandler {
-  handleOrder(order: ExternalOrder): Promise<void>;
-  consumeEvent(order: ExternalOrder): Promise<void>;
+  handleOrder(req: HandleOrderRequest): Promise<void>;
+  consumeEvent(): Promise<void>;
 }
