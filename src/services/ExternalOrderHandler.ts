@@ -1,10 +1,11 @@
 import { Channel, ConsumeMessage } from "amqplib";
 import { ExternalOrder } from "../types/externalOrder";
-import { OrderBody } from "../types/order";
-import { IExternalOrderHandler, IOrderRepository } from "../domain";
+import { OrderBody } from "../types";
+import { IExternalOrderHandler, IFailedOrderRepository, IOrderRepository } from "../domain";
 
 export type ExternalOrderHandlerDependencies = {
   orderRepository: IOrderRepository;
+  failedOrderRepository: IFailedOrderRepository;
   rabbitMQChannel: Channel;
 };
 
@@ -47,7 +48,15 @@ export class ExternalOrderHandler implements IExternalOrderHandler {
             this.$.rabbitMQChannel.ack(msg);
           } catch (error) {
             console.error("Error processing order:", error);
-            this.$.rabbitMQChannel.nack(msg, false, true);
+
+            const errorMessage = error instanceof Error ? error.message : "Unknown error";
+
+            await this.$.failedOrderRepository.create({
+              rawData: msg.content.toString(),
+              errorMessage,
+            });
+
+            this.$.rabbitMQChannel.ack(msg);
           }
         }
       },

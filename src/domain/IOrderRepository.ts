@@ -1,4 +1,4 @@
-import { Order, OrderBody } from "../types/order";
+import { Order, OrderBody } from "../types";
 
 export interface IOrderRepository {
   saveOrder(order: OrderBody): Promise<void>;
