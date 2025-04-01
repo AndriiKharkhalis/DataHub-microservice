@@ -16,12 +16,12 @@ const createOrderRoutes = (
 
       res.status(200).json({ message: "Order received and queued" });
     } catch (error) {
-      next(error); // Pass error to centralized error handler
+      next(error);
     }
   });
 
   router.get("/orders", (req, res, next) => {
-    orderController.getOrders(req, res).catch(next); // Pass error to centralized error handler
+    orderController.getOrders(req, res).catch(next);
   });
 
   return router;

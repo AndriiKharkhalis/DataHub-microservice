@@ -1,6 +1,13 @@
-import { OrderBody, Order } from "../types/order";
+import { Order } from "../types/order";
+
+export type QueryOrderRequest = {
+  customerId: string;
+};
+
+export type QueryOrderResponse = {
+  orders: Order[];
+};
 
 export interface IOrderService {
-  createOrder(order: OrderBody): Promise<void>;
-  getOrdersByCustomer(customerId: string): Promise<Order[]>;
+  queryOrders(req: QueryOrderRequest): Promise<QueryOrderResponse>;
 }

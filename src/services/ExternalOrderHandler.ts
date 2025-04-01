@@ -1,10 +1,10 @@
 import { Channel, ConsumeMessage } from "amqplib";
 import { ExternalOrder } from "../types/externalOrder";
 import { OrderBody } from "../types/order";
-import { IExternalOrderHandler, IOrderService } from "../domain";
+import { IExternalOrderHandler, IOrderRepository } from "../domain";
 
 export type ExternalOrderHandlerDependencies = {
-  orderService: IOrderService;
+  orderRepository: IOrderRepository;
   rabbitMQChannel: Channel;
 };
 
@@ -42,7 +42,7 @@ export class ExternalOrderHandler implements IExternalOrderHandler {
 
             const transformedOrder = this.transformOrder(parsedOrder);
 
-            await this.$.orderService.createOrder(transformedOrder);
+            await this.$.orderRepository.saveOrder(transformedOrder);
 
             this.$.rabbitMQChannel.ack(msg);
           } catch (error) {

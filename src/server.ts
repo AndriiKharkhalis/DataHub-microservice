@@ -8,12 +8,12 @@ import { ExternalOrderHandler } from "./services/ExternalOrderHandler";
 import { OrderService } from "./services/OrderService";
 import { createRabbitMQChannel } from "./config/rabbitmq";
 
-async function initializeRabbitMQ(orderService: OrderService): Promise<ExternalOrderHandler> {
+async function initializeRabbitMQ(orderRepository: OrderRepository): Promise<ExternalOrderHandler> {
   const channel = await createRabbitMQChannel(env.RABBITMQ_URL, env.RABBITMQ_QUEUE_NAME);
 
   const externalOrderHandler = new ExternalOrderHandler(
     {
-      orderService,
+      orderRepository,
       rabbitMQChannel: channel,
     },
     { queueName: env.RABBITMQ_QUEUE_NAME },
@@ -28,7 +28,7 @@ async function startServer() {
     const orderRepository = new OrderRepository({ prisma });
     const orderService = new OrderService({ orderRepository });
 
-    const externalOrderHandler = await initializeRabbitMQ(orderService);
+    const externalOrderHandler = await initializeRabbitMQ(orderRepository);
 
     await externalOrderHandler.consumeEvent();
 

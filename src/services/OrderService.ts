@@ -1,5 +1,4 @@
-import { IOrderRepository, IOrderService } from "../domain";
-import { OrderBody, Order } from "../types/order";
+import { IOrderRepository, IOrderService, QueryOrderRequest, QueryOrderResponse } from "../domain";
 
 export type OrderServiceDependencies = {
   orderRepository: IOrderRepository;
@@ -8,11 +7,11 @@ export type OrderServiceDependencies = {
 export class OrderService implements IOrderService {
   constructor(private readonly $: OrderServiceDependencies) {}
 
-  async createOrder(order: OrderBody): Promise<void> {
-    return this.$.orderRepository.saveOrder(order);
-  }
+  async queryOrders(req: QueryOrderRequest): Promise<QueryOrderResponse> {
+    const { customerId } = req;
 
-  async getOrdersByCustomer(customerId: string): Promise<Order[]> {
-    return this.$.orderRepository.getOrdersByCustomer(customerId);
+    const orders = await this.$.orderRepository.getOrdersByCustomer(customerId);
+
+    return { orders };
   }
 }
