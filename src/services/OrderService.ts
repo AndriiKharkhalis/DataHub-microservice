@@ -10,7 +10,7 @@ export class OrderService implements IOrderService {
   async queryOrders(req: QueryOrderRequest): Promise<QueryOrderResponse> {
     const { customerId } = req;
 
-    const orders = await this.$.orderRepository.getOrdersByCustomer(customerId);
+    const orders = await this.$.orderRepository.getManyByCustomerId(customerId);
 
     return { orders };
   }

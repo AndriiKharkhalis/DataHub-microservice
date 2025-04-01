@@ -38,7 +38,7 @@ describe("OrderRepository", () => {
         ...transformedOrder,
       });
 
-      await orderRepository.saveOrder(inputOrder);
+      await orderRepository.create(inputOrder);
 
       expect(prisma.order.create).toHaveBeenCalledWith({
         data: inputOrder,
@@ -55,7 +55,7 @@ describe("OrderRepository", () => {
         createdAt: new Date("2025-01-01T23:00:00.000Z"),
       };
 
-      await expect(orderRepository.saveOrder(inputOrder)).rejects.toThrow("Failed to save order");
+      await expect(orderRepository.create(inputOrder)).rejects.toThrow("Failed to save order");
     });
   });
 
@@ -85,7 +85,7 @@ describe("OrderRepository", () => {
 
       prisma.order.findMany.mockResolvedValue(existedOrders);
 
-      const result = await orderRepository.getOrdersByCustomer(customerId);
+      const result = await orderRepository.getManyByCustomerId(customerId);
 
       expect(prisma.order.findMany).toHaveBeenCalledWith({
         where: {
@@ -120,7 +120,7 @@ describe("OrderRepository", () => {
 
       prisma.order.findMany.mockRejectedValue(new Error("Failed to fetch"));
 
-      await expect(orderRepository.getOrdersByCustomer(customerId)).rejects.toThrow(
+      await expect(orderRepository.getManyByCustomerId(customerId)).rejects.toThrow(
         "Failed to fetch orders",
       );
     });

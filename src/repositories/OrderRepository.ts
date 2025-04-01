@@ -10,7 +10,7 @@ export type OrderRepositoryDependencies = {
 export class OrderRepository implements IOrderRepository {
   constructor(private readonly $: OrderRepositoryDependencies) {}
 
-  async saveOrder(order: OrderBody): Promise<void> {
+  async create(order: OrderBody): Promise<void> {
     try {
       const validatedOrder = OrderBodySchema.parse(order);
 
@@ -22,7 +22,7 @@ export class OrderRepository implements IOrderRepository {
     }
   }
 
-  async getOrdersByCustomer(customerId: string): Promise<Order[]> {
+  async getManyByCustomerId(customerId: string): Promise<Order[]> {
     try {
       const fetchedOrders = await this.$.prisma.order.findMany({
         where: {

@@ -43,7 +43,7 @@ export class ExternalOrderHandler implements IExternalOrderHandler {
 
             const transformedOrder = this.transformOrder(parsedOrder);
 
-            await this.$.orderRepository.saveOrder(transformedOrder);
+            await this.$.orderRepository.create(transformedOrder);
 
             this.$.rabbitMQChannel.ack(msg);
           } catch (error) {
