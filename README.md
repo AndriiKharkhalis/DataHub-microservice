@@ -168,6 +168,6 @@ http://localhost:3000
 Endpoints:
 
 ```bash
-POST /orders: Queue a new order for processing.
-GET /orders: Retrieve orders for a specific customerId.
+POST api/orders: Queue a new order for processing.
+GET api/orders: Retrieve orders for a specific customerId.
 ```
