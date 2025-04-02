@@ -19,8 +19,21 @@ const createOrderRoutes = (
     }
   });
 
-  router.get("/orders", (req, res, next) => {
-    orderController.getOrders(req, res).catch(next);
+  router.get("/orders", async (req, res, next) => {
+    try {
+      const { customerId } = req.query;
+
+      if (!customerId || typeof customerId !== "string") {
+        res.status(400).json({ message: `Invalid customerId: ${customerId}` });
+        return;
+      }
+
+      const orders = await orderController.getOrders({ customerId });
+
+      res.status(200).json(orders);
+    } catch (error) {
+      next(error);
+    }
   });
 
   return router;

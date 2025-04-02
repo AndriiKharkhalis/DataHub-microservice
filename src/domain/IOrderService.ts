@@ -5,7 +5,7 @@ export type QueryOrdersRequest = {
 };
 
 export type QueryOrdersResponse = {
-  orders: Order[];
+  data: Order[];
 };
 
 export interface IOrderService {
