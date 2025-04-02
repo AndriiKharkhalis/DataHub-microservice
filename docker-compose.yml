@@ -1,14 +1,54 @@
-version: "3.9"
+version: "3.8"
 
 services:
-  app:
-    build:
-      context: .
-      dockerfile: Dockerfile
+  postgres:
+    image: postgres:15
+    restart: always
+    environment:
+      POSTGRES_USER: myuser
+      POSTGRES_PASSWORD: mypassword
+      POSTGRES_DB: mydatabase
+      POSTGRES_INITDB_ARGS: "--auth=md5"
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "myuser"]
+      interval: 5s
+      retries: 5
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    restart: always
+    environment:
+      RABBITMQ_DEFAULT_USER: myuser
+      RABBITMQ_DEFAULT_PASS: mypassword
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "check_port_connectivity"]
+      interval: 5s
+      retries: 5
+      timeout: 10s
+
+  my_app:
+    build: .
+    restart: always
+    depends_on:
+      postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_started
+    environment:
+      DATABASE_URL: postgresql://myuser:mypassword@postgres:5432/mydatabase
+      RABBITMQ_URL: amqp://myuser:mypassword@rabbitmq:5672
+      RABBITMQ_QUEUE: order_queue
+    command: >
+      sh -c "npx prisma migrate deploy && exec node dist/server.js"
     ports:
       - "3000:3000"
-    env_file:
-      - .env
-    environment:
-      NODE_ENV: development
-      PORT: 3000
+
+volumes:
+  postgres_data:
