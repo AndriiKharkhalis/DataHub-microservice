@@ -42,7 +42,19 @@ The DataHub Microservice is a Node.js application built with TypeScript. It prov
 
 8. Database
 
-- PostgreSQL with Prisma ORM
+The application uses PostgreSQL with Prisma ORM. Below are the key tables in the database:
+
+- core_order: This table stores all valid orders.
+- core_invalid_order: This table stores orders that did not pass validation, ensuring that data is not lost.
+
+```ts
+type FailedOrder = {
+  id: string;
+  createdAt: Date;
+  rawData: string;
+  errorMessage: string;
+};
+```
 
 ## Endpoints
 
@@ -53,13 +65,15 @@ The DataHub Microservice is a Node.js application built with TypeScript. It prov
 
 ```json
 {
-  "orderId": "123456",
-  "customer": { "id": "cust_001", "email": "customer@example.com" },
-  "items": [
-    { "sku": "sku_001", "quantity": 2, "price": 49.99 },
-    { "sku": "sku_002", "quantity": 1, "price": 19.99 }
-  ],
-  "createdAt": "2025-03-26T10:30:00Z"
+  "order": {
+    "orderId": "123456",
+    "customer": { "id": "cust_001", "email": "customer@example.com" },
+    "items": [
+      { "sku": "sku_001", "quantity": 2, "price": 49.99 },
+      { "sku": "sku_002", "quantity": 1, "price": 19.99 }
+    ],
+    "createdAt": "2025-03-26T10:30:00Z"
+  }
 }
 ```
 
@@ -131,14 +145,10 @@ The DataHub Microservice is a Node.js application built with TypeScript. It prov
 
 ```bash
 PORT= (by default is setted to 3000)
-DATABASE_URL=postgresql://...
-RABBITMQ_URL=amqps://...
-RABBITMQ_QUEUE=
+DATABASE_URL=postgresql://myuser:mypassword@postgres:5432/mydatabase
+RABBITMQ_URL=amqp://myuser:mypassword@rabbitmq:5672
+RABBITMQ_QUEUE=order_queue
 ```
-
-DATABASE_URL: Replace localhost with host.docker.internal if running the database on the host machine and the app inside Docker.
-RABBITMQ_URL: Use your CloudAMQP URL or the URL of your RabbitMQ instance.
-RABBITMQ_QUEUE: Set the name of the RabbitMQ queue.
 
 3. Build and Run the Application
    Run the following commands to build and start the application using Docker Compose:
@@ -159,5 +169,5 @@ Endpoints:
 
 ```bash
 POST /orders: Queue a new order for processing.
-GET /orders: Retrieve orders for a specific customer.
+GET /orders: Retrieve orders for a specific customerId.
 ```
