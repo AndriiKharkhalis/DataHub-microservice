@@ -30,5 +30,4 @@ RUN pnpm run build
 EXPOSE 3000
 
 # # Start the application
-# CMD ["pnpm", "start"]
 CMD ["node", "dist/server.js"]
