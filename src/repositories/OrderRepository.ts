@@ -1,5 +1,5 @@
 import { PrismaClient } from "@prisma/client";
-import { Order, OrderBody } from "../types/";
+import { Order, OrderBody, OrderDB } from "../types/";
 import { OrderBodySchema, OrderSchema } from "../schemas";
 import { IOrderRepository } from "../domain";
 
@@ -30,7 +30,7 @@ export class OrderRepository implements IOrderRepository {
         },
       });
 
-      const validatedOrders = fetchedOrders.reduce<Order[]>((acc, order) => {
+      const validatedOrders = fetchedOrders.reduce((acc: Order[], order: OrderDB) => {
         const parsed = OrderSchema.safeParse({
           ...order,
           totalAmount: Number(order.totalAmount),
