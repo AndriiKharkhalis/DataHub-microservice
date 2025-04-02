@@ -1,5 +1,13 @@
-import { Request, Response } from "express";
+import { Order } from "../types";
+
+export type OrderControllerRequest = {
+  customerId: string;
+};
+
+export type OrderControllerResponse = {
+  data: Order[];
+};
 
 export interface IOrderController {
-  getOrders(req: Request, res: Response): Promise<void>;
+  getOrders(req: OrderControllerRequest): Promise<OrderControllerResponse>;
 }

@@ -20,13 +20,13 @@ export class OrderService implements IOrderService {
     try {
       const orders = await this.$.orderRepository.getManyByCustomerId(customerId);
 
-      return { orders };
+      return { data: orders };
     } catch (error) {
       this.$.logger.error(
         `OrderService.queryOrders: Failed to fetch orders for customer ID ${customerId}`,
         error,
       );
-      return { orders: [] };
+      return { data: [] };
     }
   }
 }
